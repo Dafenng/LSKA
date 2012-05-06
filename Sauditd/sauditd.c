@@ -5,8 +5,17 @@
 #include <sys/stat.h>
 #include <string.h> 
 #include <signal.h>
+#include <fcntl.h>
 
-FILE *fp = NULL;
+int fp;
+FILE *fp2 = NULL;
+
+struct slog
+{
+	uid_t uid;
+	time_t stime;
+	char message[100];
+};
 
 int daemon_init()
 {
@@ -47,8 +56,10 @@ void sig_term(int signo)
 {
 	if (signo == SIGTERM)
 	{
-		fprintf(fp, "Terminate logging...\n");
-		fflush(fp);
+		fprintf(fp2, "Terminate logging...\n");
+		fflush(fp2);
+		fclose(fp2);
+		close(fp);
 		exit(0);
 	}
 }
@@ -65,19 +76,34 @@ int main(int argc, char const *argv[])
 	 *TODO:Open a log file in write mode for test
 	 *Need to be my chracter device
 	 */
-	fp = fopen("Log.txt", "w+");
+	fp = open("/proc/proc_log", O_WRONLY, O_CREAT);
+	fp2 = fopen("/home/keywind/proc_log.txt", "w+");
 
 	signal(SIGTERM, sig_term);
 
+	struct slog alog;
 	while(1)
 	{
 		sleep(10);
-		fprintf(fp, "Logging info...\n");
-		fflush(fp);
+		
+		if (fp != -1)
+		{
+			read(fp, &alog, sizeof(struct slog));
+			fprintf(fp2, "Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+		}
+		else
+		{
+			fprintf(fp2, "Proc not working\n");
+		}
+
+		
+		fprintf(fp2, "Just test line\n");
+		fflush(fp2);
 	} 
 
-	fprintf(fp, "Finish logging...\n");
-	fflush(fp);
-	fclose(fp);
+	fprintf(fp2, "Finish logging...\n");
+	fflush(fp2);
+	fclose(fp2);
+	close(fp);
 	return 0;
 }

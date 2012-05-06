@@ -1,7 +1,7 @@
 ifneq ($(KERNELRELEASE),)
 
 	obj-m := lska.o
-	lska-objs := hijack.o driver.o saudit.o
+	lska-objs := util.o proc_file.o kernel_file_op.o new_syscall.o hijack.o driver.o saudit.o
 
 else
 
@@ -10,7 +10,7 @@ else
 
 default:
 	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
-	rm *.mod.c *.o *.order *.symvers
+	rm -rf *.mod.c *.o *.order *.symvers .*.cmd .tmp_versions
 
 endif
 

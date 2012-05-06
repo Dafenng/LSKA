@@ -14,7 +14,7 @@ struct slog
 };
 
 int proc_read_log(char *page, char **start, off_t off, int count, int *eof, void *data);
-int proc_write_log(struct file *file, const char *buffer, unsigned long count, void *data);
+int proc_write_log(struct slog _log);
 int proc_init(void);
 void proc_exit(void);
 

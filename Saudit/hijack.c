@@ -1,9 +1,12 @@
 #include <linux/sched.h>
 #include <linux/init.h>
 #include <linux/module.h>
-#include <linux/string.h>
 
 #include "hijack.h"
+#include "new_syscall.h"
+
+extern asmlinkage int (*original_write)(unsigned int, const char __user *, size_t);
+extern asmlinkage int (*original_read)(unsigned int, const char __user *, size_t);
 
 struct
 {
@@ -53,20 +56,6 @@ unsigned int get_sys_call_table(void)
     return 0;
 }
 
-asmlinkage int (*original_write)(unsigned int, const char __user *, size_t);
-
-asmlinkage int new_write(unsigned int fd, const char __user *buf, size_t count) {
-
-    // hijacked write
-    char *name = "cat";
-    if (strcmp(current->comm, name) == 0)
-    {
-        printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
-    }
-
-    return (*original_write)(fd, buf, count);
-}
-
 unsigned int clear_and_return_cr0(void)
 {
     unsigned int cr0 = 0;
@@ -98,9 +87,12 @@ void hijack_init(void)
         return;
     } 
     original_write = syscall_table[__NR_write];
+    original_read = syscall_table[__NR_read];
     printk("HIJACK -- addr of original_write %x\n", original_write);
+    printk("HIJACK -- addr of original_read %x\n", original_read);
     orig_cr0 = clear_and_return_cr0();
     syscall_table[__NR_write] = (unsigned long) new_write;
+    syscall_table[__NR_read] = (unsigned long) new_read;
     setback_cr0(orig_cr0);
 }
 
@@ -108,6 +100,7 @@ void hijack_exit(void)
 {
     unsigned int orig_cr0 = clear_and_return_cr0();
     syscall_table[__NR_write] = (unsigned long) original_write;
+    syscall_table[__NR_read] = (unsigned long) original_read;
     setback_cr0(orig_cr0);
     printk(KERN_ALERT "HIJACK -- hijack exit\n");
 }
