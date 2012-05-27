@@ -20,7 +20,7 @@
 
 #define MAX_DIR_LENTH 100
 
-void test2(unsigned int fd)
+void test2(unsigned int fd, char *path)
 {
     struct file *file = NULL;
     char* fullpath = NULL;
@@ -38,6 +38,7 @@ void test2(unsigned int fd)
         printk("Get fullpath error!");
         return;
     }
+    strcpy(path, fullpath);
     printk("FULLPATH:%s",fullpath);
 
     //free mem
@@ -58,15 +59,16 @@ asmlinkage int new_read(unsigned int fd, const char __user *buf, size_t count)
     char *name = "cat";
     if (strcmp(current->comm, name) == 0)
     {
-        printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
         struct timeval tv;
         do_gettimeofday(&tv);
 
-        test2(fd);
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        test2(fd, fullmessage);
+        sprintf(alog.message, "%s is reading file %s", name, fullmessage);
 
-        struct slog alog = {current->real_cred->uid, tv.tv_sec, "fuck"};
-
-        printk(KERN_ALERT "HIJACK -- Slog info : uid - %d, stime - %d, message - %s", alog.uid, alog.stime, alog.message);
+        printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
         //struct file *fp;
         //fp = file_open("/dev/scullp0", O_RDWR, 0644);
         //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
@@ -94,15 +96,17 @@ asmlinkage int new_write(unsigned int fd, const char __user *buf, size_t count)
     char *name = "cat";
     if (strcmp(current->comm, name) == 0)
     {
-        printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
         struct timeval tv;
         do_gettimeofday(&tv);
 
-        //test2(fd);
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        test2(fd, fullmessage);
+        sprintf(alog.message, "%s is writing file %s", name, fullmessage);
 
-        struct slog alog = {current->real_cred->uid, tv.tv_sec, "fuck"};
-
-        printk(KERN_ALERT "HIJACK -- Slog info : uid - %d, stime - %d, message - %s", alog.uid, alog.stime, alog.message);
+        printk(KERN_ALERT "HIJACK WRITE -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+        
         //struct file *fp;
         //fp = file_open("/dev/scullp0", O_RDWR, 0644);
         //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
