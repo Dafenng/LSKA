@@ -6,16 +6,11 @@
 #include <string.h> 
 #include <signal.h>
 #include <fcntl.h>
+#include <pwd.h>  
+#include <malloc.h>
+#include <time.h>
 
-int fp;
 FILE *fp2 = NULL;
-
-struct slog
-{
-	uid_t uid;
-	time_t stime;
-	char message[100];
-};
 
 int daemon_init()
 {
@@ -59,7 +54,6 @@ void sig_term(int signo)
 		fprintf(fp2, "Terminate logging...\n");
 		fflush(fp2);
 		fclose(fp2);
-		close(fp);
 		exit(0);
 	}
 }
@@ -76,34 +70,54 @@ int main(int argc, char const *argv[])
 	 *TODO:Open a log file in write mode for test
 	 *Need to be my chracter device
 	 */
-	fp = open("/proc/proc_log", O_WRONLY, O_CREAT);
 	fp2 = fopen("/home/keywind/proc_log.txt", "w+");
 
 	signal(SIGTERM, sig_term);
 
-	struct slog alog;
 	while(1)
 	{
 		sleep(10);
 		
-		if (fp != -1)
-		{
-			read(fp, &alog, sizeof(struct slog));
-			fprintf(fp2, "Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
-		}
-		else
-		{
-			fprintf(fp2, "Proc not working\n");
-		}
+		int fp = open("/proc/proc_log", O_RDONLY);
+		char buffer[150] = {0};
+		read(fp, buffer, 150);
 
-		
-		fprintf(fp2, "Just test line\n");
-		fflush(fp2);
+		if (buffer[0] != 0)
+		{
+			int i, j, user, _time;
+			_time = user = 0;
+			for(i = 5; isdigit(buffer[i]); i++) {
+				user = user * 10 + buffer[i] - '0';
+			}
+
+			for(i = 21; isdigit(buffer[i]); i++) {
+				_time = _time * 10 + buffer[i] - '0';
+			}
+
+			char *login_name;
+			struct passwd *pwd;
+			pwd = getpwuid(user);
+			login_name = pwd->pw_name;
+
+			char *occur_time;
+			occur_time = ctime(&_time);
+
+			for (i = 0, j = 5; login_name[i]; i++, j++) {
+				buffer[j] = login_name[i];
+			}
+
+			for (i = 0, j = 21; occur_time[i]!='\n'; i++, j++) {
+				buffer[j] = occur_time[i];
+			}
+
+			fprintf(fp2, "%s\n", buffer);
+			fflush(fp2);
+		}
+		close(fp);		
 	} 
 
 	fprintf(fp2, "Finish logging...\n");
 	fflush(fp2);
 	fclose(fp2);
-	close(fp);
 	return 0;
 }

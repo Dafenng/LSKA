@@ -25,7 +25,7 @@ int proc_read_log(char *page, char **start, off_t off, int count, int *eof, void
 	char strlog[151];
 	memset(strlog, '-', 151);
 	strlog[150] = '\0';
-	sprintf(strlog, "User:%d-------Time:%d------------------message : %s", alog.uid, alog.stime, alog.message);
+	sprintf(strlog, "User:%d-------Time:%d------------------Message : %s", alog.uid, alog.stime, alog.message);
 	strlog[strlen(strlog)] = '-';
 
 	len = sprintf(page, strlog);

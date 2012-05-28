@@ -39,7 +39,7 @@ void test2(unsigned int fd, char *path)
         return;
     }
     strcpy(path, fullpath);
-    printk("FULLPATH:%s",fullpath);
+    //printk("FULLPATH:%s",fullpath);
 
     //free mem
     putfullpath(fullpath);
