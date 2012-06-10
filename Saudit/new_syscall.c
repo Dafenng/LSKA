@@ -20,6 +20,8 @@
 
 #define MAX_DIR_LENTH 100
 
+int lasttime = 0;
+
 void test2(unsigned int fd, char *path)
 {
     struct file *file = NULL;
@@ -75,6 +77,37 @@ asmlinkage int new_read(unsigned int fd, const char __user *buf, size_t count)
         //file_close(fp);
         proc_write_log(alog);
 
+        /*
+        struct timex  txc;
+        struct rtc_time tm;
+        do_gettimeofday(&(txc.time));
+        rtc_time_to_tm(txc.time.tv_sec,&tm);
+        printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+        */   
+    }
+
+    name = "su";
+    if (strcmp(current->comm, name) == 0)
+    {
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        struct timeval tv;
+        do_gettimeofday(&tv);
+
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        sprintf(alog.message, "Using '%s' to try to get root", name);
+
+        //struct file *fp;
+        //fp = file_open("/dev/scullp0", O_RDWR, 0644);
+        //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
+        //file_close(fp);
+        if(lasttime != tv.tv_sec)
+        {
+            printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+            proc_write_log(alog);
+            lasttime = tv.tv_sec;
+        }
+            
         /*
         struct timex  txc;
         struct rtc_time tm;
