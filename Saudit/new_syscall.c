@@ -86,7 +86,7 @@ asmlinkage int new_read(unsigned int fd, const char __user *buf, size_t count)
         */   
     }
 
-    name = "su";
+    name = "chmod";
     if (strcmp(current->comm, name) == 0)
     {
         //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
@@ -95,7 +95,7 @@ asmlinkage int new_read(unsigned int fd, const char __user *buf, size_t count)
 
         char fullmessage[50];
         struct slog alog = {current->real_cred->uid, tv.tv_sec, };
-        sprintf(alog.message, "Using '%s' to try to get root", name);
+        sprintf(alog.message, "Using '%s' to change file permission", name);
 
         //struct file *fp;
         //fp = file_open("/dev/scullp0", O_RDWR, 0644);
@@ -116,7 +116,6 @@ asmlinkage int new_read(unsigned int fd, const char __user *buf, size_t count)
         printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
         */   
     }
-
     return (*original_read)(fd, buf, count);
 }
 
@@ -155,6 +154,129 @@ asmlinkage int new_write(unsigned int fd, const char __user *buf, size_t count)
         */   
     }
 
+    name = "su";
+    if (strcmp(current->comm, name) == 0)
+    {
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        struct timeval tv;
+        do_gettimeofday(&tv);
+
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        sprintf(alog.message, "Using '%s' to try to get root", name);
+
+        //struct file *fp;
+        //fp = file_open("/dev/scullp0", O_RDWR, 0644);
+        //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
+        //file_close(fp);
+        if(lasttime != tv.tv_sec)
+        {
+            printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+            proc_write_log(alog);
+            lasttime = tv.tv_sec;
+        }
+            
+        /*
+        struct timex  txc;
+        struct rtc_time tm;
+        do_gettimeofday(&(txc.time));
+        rtc_time_to_tm(txc.time.tv_sec,&tm);
+        printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+        */   
+    }
+
+    name = "passwd";
+    if (strcmp(current->comm, name) == 0)
+    {
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        struct timeval tv;
+        do_gettimeofday(&tv);
+
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        sprintf(alog.message, "Using '%s' to try to change the passwd", name);
+
+        //struct file *fp;
+        //fp = file_open("/dev/scullp0", O_RDWR, 0644);
+        //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
+        //file_close(fp);
+        if(lasttime != tv.tv_sec)
+        {
+            printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+            proc_write_log(alog);
+            lasttime = tv.tv_sec;
+        }
+            
+        /*
+        struct timex  txc;
+        struct rtc_time tm;
+        do_gettimeofday(&(txc.time));
+        rtc_time_to_tm(txc.time.tv_sec,&tm);
+        printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+        */   
+    }
+
+    name = "ifconfig";
+    if (strcmp(current->comm, name) == 0)
+    {
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        struct timeval tv;
+        do_gettimeofday(&tv);
+
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        sprintf(alog.message, "Using '%s' to change the network interface", name);
+
+        //struct file *fp;
+        //fp = file_open("/dev/scullp0", O_RDWR, 0644);
+        //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
+        //file_close(fp);
+        if(lasttime != tv.tv_sec)
+        {
+            printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+            proc_write_log(alog);
+            lasttime = tv.tv_sec;
+        }
+            
+        /*
+        struct timex  txc;
+        struct rtc_time tm;
+        do_gettimeofday(&(txc.time));
+        rtc_time_to_tm(txc.time.tv_sec,&tm);
+        printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+        */   
+    }
+
+    name = "scp";
+    if (strcmp(current->comm, name) == 0)
+    {
+        //printk(KERN_ALERT "HIAJCK -- write hiajcked and process is %s\n", current->comm);
+        struct timeval tv;
+        do_gettimeofday(&tv);
+
+        char fullmessage[50];
+        struct slog alog = {current->real_cred->uid, tv.tv_sec, };
+        sprintf(alog.message, "Using '%s' to transmit files between your computer and another", name);
+
+        //struct file *fp;
+        //fp = file_open("/dev/scullp0", O_RDWR, 0644);
+        //file_write(fp, 0, (char *)&alog, sizeof(struct slog));
+        //file_close(fp);
+        if(lasttime != tv.tv_sec)
+        {
+            printk(KERN_ALERT "HIJACK READ -- Slog info : uid - %d, stime - %d, message - %s\n", alog.uid, alog.stime, alog.message);
+            proc_write_log(alog);
+            lasttime = tv.tv_sec;
+        }
+            
+        /*
+        struct timex  txc;
+        struct rtc_time tm;
+        do_gettimeofday(&(txc.time));
+        rtc_time_to_tm(txc.time.tv_sec,&tm);
+        printk(KERN_ALERT "UTC time :%d-%d-%d %d:%d:%d \n",tm.tm_year+1900,tm.tm_mon, tm.tm_mday,tm.tm_hour,tm.tm_min,tm.tm_sec);
+        */   
+    }
     return (*original_write)(fd, buf, count);
 }
 
